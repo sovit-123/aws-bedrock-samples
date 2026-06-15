@@ -7,6 +7,7 @@ from embeddings import (
     retrieve
 )
 from dotenv import load_dotenv
+from termcolor import cprint
 
 import boto3
 import os
@@ -82,10 +83,12 @@ def main():
     # Generate embeddings and store in ChromaDB
     db = embed_and_store(chunks)
 
+    cprint("You can type 'exit' or 'quit' to end the chat.", 'green')
     while True:
-        user_input = input("User: ")
+        cprint('USER: ', 'blue', attrs=['bold'], end='')
+        user_input = input()
         if user_input.lower() in ['exit', 'quit']:
-            print("Exiting the chat.")
+            cprint("Exiting the chat.", 'red')
             break
 
         retrieved_text = retrieve(user_input, db, k=5, show_chunks=False)
@@ -99,7 +102,7 @@ def main():
 
         assistant_response = ''
 
-        print('Assistant: ', end='')
+        cprint('Assistant: ', 'magenta', attrs=['bold'], end='')
 
         # Make the API call with streaming
         response = client.converse_stream(
@@ -113,7 +116,7 @@ def main():
         for event in response_stream:
             if 'contentBlockDelta' in event:
                 stream_out = event['contentBlockDelta']['delta']['text']
-                print(stream_out, end='')
+                cprint(stream_out, 'yellow', end='')
                 assistant_response += stream_out
 
         print('\n')

@@ -9,6 +9,7 @@ import os
 import argparse
 
 from dotenv import load_dotenv
+from termcolor import cprint
 
 # Argument parsers.
 parser = argparse.ArgumentParser()
@@ -34,8 +35,10 @@ model_id = os.getenv('MODEL_ID')
 # Empty messages list to hold the conversation history.
 messages = []
 
+cprint("You can type 'exit' or 'quit' to end the chat.", 'green')
 while True:
-    user_input = input("User: ")
+    cprint('USER: ', 'blue', attrs=['bold'], end='')
+    user_input = input()
     if user_input.lower() in ['exit', 'quit']:
         print("Exiting the chat.")
         break
@@ -48,7 +51,7 @@ while True:
 
     assistant_response = ''
 
-    print('Assistant: ', end='')
+    cprint('Assistant: ', 'magenta', attrs=['bold'], end='')
 
     if STREAM:
         # Make the API call with streaming
@@ -63,7 +66,7 @@ while True:
         for event in response_stream:
             if 'contentBlockDelta' in event:
                 stream_out = event['contentBlockDelta']['delta']['text']
-                print(stream_out, end='')
+                cprint(stream_out, 'yellow', end='')
                 assistant_response += stream_out
 
         print('\n')
@@ -77,7 +80,7 @@ while True:
         
         # Print the response
         assistant_response = response['output']['message']['content'][0]['text']
-        print(assistant_response)
+        cprint(assistant_response, 'yellow')
 
         print()
 
