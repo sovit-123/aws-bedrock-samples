@@ -1,2 +1,3 @@
 boto3==1.43.29
 python-dotenv==1.2.2
+termcolor==3.3.0
