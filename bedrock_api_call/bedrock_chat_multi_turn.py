@@ -35,13 +35,62 @@ model_id = os.getenv('MODEL_ID')
 # Empty messages list to hold the conversation history.
 messages = []
 
-cprint("You can type 'exit' or 'quit' to end the chat.", 'green')
-while True:
-    cprint('USER: ', 'blue', attrs=['bold'], end='')
-    user_input = input()
-    if user_input.lower() in ['exit', 'quit']:
-        print("Exiting the chat.")
-        break
+# while True:
+#     cprint('USER: ', 'blue', attrs=['bold'], end='')
+#     user_input = input()
+#     if user_input.lower() in ['exit', 'quit']:
+#         print("Exiting the chat.")
+#         break
+    
+#     # Append the user's message to the messages list.
+#     messages.append({
+#         'role': 'user',
+#         'content': [{'text': user_input}]
+#     })
+
+#     assistant_response = ''
+
+#     cprint('Assistant: ', 'magenta', attrs=['bold'], end='')
+
+#     if STREAM:
+#         # Make the API call with streaming
+#         response = client.converse_stream(
+#             modelId=model_id,
+#             messages=messages
+#         )
+    
+#         response_stream = response.get('stream')
+        
+#         # Print the streamed response   
+#         for event in response_stream:
+#             if 'contentBlockDelta' in event:
+#                 stream_out = event['contentBlockDelta']['delta']['text']
+#                 cprint(stream_out, 'yellow', end='')
+#                 assistant_response += stream_out
+
+#         print('\n')
+
+#     else:
+#         # Make the API call
+#         response = client.converse(
+#             modelId=model_id,
+#             messages=messages,
+#         )
+        
+#         # Print the response
+#         assistant_response = response['output']['message']['content'][0]['text']
+#         cprint(assistant_response, 'yellow')
+
+#         print()
+
+#     # Append the assistant's response to the messages list to maintain conversation history.
+#     messages.append({
+#         'role': 'assistant',
+#         'content': [{'text': assistant_response}]
+#     })
+
+def chat(user_input, model_id, stream=False):
+    global messages
     
     # Append the user's message to the messages list.
     messages.append({
@@ -53,7 +102,7 @@ while True:
 
     cprint('Assistant: ', 'magenta', attrs=['bold'], end='')
 
-    if STREAM:
+    if stream:
         # Make the API call with streaming
         response = client.converse_stream(
             modelId=model_id,
@@ -70,7 +119,6 @@ while True:
                 assistant_response += stream_out
 
         print('\n')
-
     else:
         # Make the API call
         response = client.converse(
@@ -89,3 +137,14 @@ while True:
         'role': 'assistant',
         'content': [{'text': assistant_response}]
     })
+
+
+if __name__ == '__main__':
+    while True:
+        cprint('USER: ', 'blue', attrs=['bold'], end='')
+        user_input = input()
+        if user_input.lower() in ['exit', 'quit']:
+            print("Exiting the chat.")
+            break
+
+        chat(user_input, model_id, STREAM)

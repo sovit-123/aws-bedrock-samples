@@ -38,26 +38,31 @@ messages = [
     }
 ]
 
-if STREAM:
-    # Make the API call with streaming
-    response = client.converse_stream(
-        modelId=model_id,
-        messages=messages
-    )
+def chat(messages, model_id, stream=False):
+    if stream:
+        # Make the API call with streaming
+        response = client.converse_stream(
+            modelId=model_id,
+            messages=messages
+        )
 
-    response_stream = response.get('stream')
-    
-    # Print the streamed response
-    for event in response_stream:
-        if 'contentBlockDelta' in event:
-            print(event['contentBlockDelta']['delta']['text'], end="")
+        response_stream = response.get('stream')
 
-else:
-    # Make the API call
-    response = client.converse(
-        modelId=model_id,
-        messages=messages,
-    )
-    
-    # Print the response
-    print(response['output']['message']['content'][0]['text'])
+        # Print the streamed response
+        for event in response_stream:
+            if 'contentBlockDelta' in event:
+                print(event['contentBlockDelta']['delta']['text'], end="")
+    else:
+        # Make the API call
+        response = client.converse(
+            modelId=model_id,
+            messages=messages,
+        )
+
+        # Print the response
+        print(response['output']['message']['content'][0]['text'])
+
+    return response
+
+if __name__ == '__main__':
+    response = chat(messages, model_id, STREAM)
