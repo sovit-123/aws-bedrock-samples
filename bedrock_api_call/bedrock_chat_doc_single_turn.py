@@ -1,6 +1,6 @@
 """
-Simple single-turn image API call to Amazon Bedrock using the Boto3 SDK. 
-This script demonstrates how to send a message to a Bedrock model and receive a response, 
+Simple single-turn PDF document API call to Amazon Bedrock using the Boto3 SDK. 
+This script demonstrates how to send document data + user message to a Bedrock model and receive a response, 
 with optional streaming support.
 """
 
@@ -29,10 +29,10 @@ client = boto3.client(
     region_name='us-east-1'
 )
 
-# Read image and convert to bytes.
-image_path = '../input/image_1.jpg'
-with open(image_path, 'rb') as image_file:
-    image_bytes = image_file.read()
+# Read PDF document and convert to bytes.
+document_path = '../input/neural_network_wikipedia.pdf'
+with open(document_path, 'rb') as document_file:
+    document_bytes = document_file.read()
 
 # Define the model and message
 model_id = os.getenv('MODEL_ID')
@@ -41,14 +41,15 @@ messages = [
         'role': 'user', 
         'content': [
             {
-                'image': {
-                    'format': 'jpeg',
+                'document': {
+                    'format': 'pdf',
+                    'name': 'Neural Network Wikipedia',
                     'source': {
-                        'bytes': image_bytes
+                        'bytes': document_bytes
                     }
                 }
             },
-            {'text': 'What is this image?'}
+            {'text': 'What is this document about? Summarize in detail'}
         ]
     }
 ]
