@@ -2,7 +2,7 @@
 Script to generate embeddings by taking file path or folder path.
 The folder can contain PDFs and text files.
 Same extension goes for the indivual files paths as well.
-Using ChromaDB and LangChain.
+Using ChromaDB, LangChain, and Bedrock Embeddings.
 
 Functions present.
 `read_directory()` => gets all documents from the folder path.
@@ -13,11 +13,20 @@ Functions present.
 `retrieve()` => retrieves relevant chunks from ChromaDB based on query and by appending by new line.
 """
 
-import langchain
+
+import boto3
+import os
+
 from langchain_community.document_loaders import PyPDFLoader, TextLoader, DirectoryLoader
 from langchain_chroma import Chroma
-from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter  
+from langchain_aws import BedrockEmbeddings
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# Set the API key as an environment variable
+os.environ['AWS_BEARER_TOKEN_BEDROCK'] = os.getenv('AWS_BEDROCK_API_KEY')
 
 def read_directory(folder_path):
     """
@@ -61,14 +70,18 @@ def embed_and_store(chunks):
     Generates embeddings and stores in ChromaDB.
     """
 
-    # Create embeddings
-    embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
-
+    # Create embeddings. This is a one time call.
+    bedrock_client = boto3.client(
+        service_name='bedrock-runtime', region_name='us-east-1'
+    )
+    bedrock_embeddings = BedrockEmbeddings(
+        model_id=os.getenv('EMBEDDING_MODEL_ID'), client=bedrock_client
+    )
 
     # Create ChromaDB instance
     db = Chroma.from_documents(
         documents=chunks, 
-        embedding=embeddings, 
+        embedding=bedrock_embeddings, 
         # persist_directory='chroma_db'
     )
     
@@ -85,7 +98,9 @@ def retrieve(query, db, k=5, show_chunks=False):
     
     if show_chunks:
         for i, result in enumerate(results):
+            print('\n\n')
             print(f"Chunk {i+1}: {result.page_content}")
+            print('#' * 100)
     
     return retrieved_text
 
@@ -94,12 +109,15 @@ def __main__():
     Main function to test the above functions.
     """
     # Example usage
-    folder_path = "input"
-    file_path_pdf = "None"
+    folder_path = "None"
+    file_path_pdf = "../../input/nn_wiki.pdf"
     file_path_text = "None"
     
     # Read documents from folder
-    docs_from_folder = read_directory(folder_path)
+    if folder_path != "None":
+        docs_from_folder = read_directory(folder_path)
+    else:
+        docs_from_folder = []
     
     # Read PDF document
     if file_path_pdf != "None":
@@ -122,9 +140,10 @@ def __main__():
     db = embed_and_store(chunks)
     
     # Retrieve relevant chunks based on query
-    query = "Elon Musk"
+    query = "Neural Networks"
     retrieved_text = retrieve(query, db, k=5, show_chunks=True)
     
+    print('#' * 100)
     print(retrieved_text)
 
 if __name__ == "__main__":
