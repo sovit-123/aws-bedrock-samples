@@ -26,28 +26,18 @@ client = boto3.client(
 # Define the model and message
 model_id = os.getenv('MODEL_ID')
 
+# Create the messages for Bedrock API call
 messages = []
-
-def handle_message(user_input, db):
-    """
-    Handles the user input and generates a response using Bedrock.
-    """
-    global messages
-
-    # Create the messages for Bedrock API call
-    messages = [
-        {
-            'role': 'system', 
-            'content': [{'text': 'You are a helpful assistant. You are give context along with user question. Use that context to answer the question. If you do not know the answer, say you do not know. Always use all the relevant information from the context to answer the question.'}]
-        },
-    ]
-
-    return messages
-    
+system_message = [
+    {
+        'text': 'You are a helpful assistant that answers questions based on the provided context. \
+                 If the context does not contain the answer, say you do not know.'
+    }
+]
 
 def main():
     # Ask the user to pass PDF, text, or folder path to read documents and create ChromaDB
-    folder_path = input("Enter the folder path to read documents: ")
+    folder_path = input("Enter the folder path to read documents (or press Enter to skip): ")
     file_path_pdf = input("Enter the PDF file path to read document (or press Enter to skip): ")
     file_path_text = input("Enter the text file path to read document (or press Enter to skip): ")
     
@@ -107,7 +97,11 @@ def main():
         # Make the API call with streaming
         response = client.converse_stream(
             modelId=model_id,
-            messages=messages
+            messages=messages,
+            system=system_message,
+            inferenceConfig={
+                'maxTokens': 8192,
+            }
         )
     
         response_stream = response.get('stream')
