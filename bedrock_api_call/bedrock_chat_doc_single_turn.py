@@ -30,7 +30,7 @@ client = boto3.client(
 )
 
 # Read PDF document and convert to bytes.
-document_path = '../input/neural_network_wikipedia.pdf'
+document_path = '../input/nn_wiki.pdf'
 with open(document_path, 'rb') as document_file:
     document_bytes = document_file.read()
 
