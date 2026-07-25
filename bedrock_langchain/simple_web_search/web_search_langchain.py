@@ -1,7 +1,7 @@
 """
 Simple web search with LangChain and Bedrock models.
 """
-
+from langchain_aws import ChatBedrockConverse
 from langchain_aws import ChatBedrock
 from langchain_tavily import TavilySearch
 from langchain.agents import create_agent
@@ -17,9 +17,14 @@ os.environ['AWS_BEARER_TOKEN_BEDROCK'] = os.getenv('AWS_BEDROCK_API_KEY')
 MODEL_ID = os.getenv('MODEL_ID')
 
 # 1. Initialize the Bedrock model
-llm = ChatBedrock(
+# llm = ChatBedrock(
+#     model_id=MODEL_ID,
+#     region_name="us-east-1"
+# )
+llm = ChatBedrockConverse(
     model_id=MODEL_ID,
-    region_name="us-east-1"
+    region_name="us-east-1",
+    streaming=True
 )
 
 # 2. Initialize a web search tool
