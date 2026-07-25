@@ -51,7 +51,7 @@ def create_config():
     config = {"configurable": {"thread_id": "conversation-123"}}
     return config
 
-def chat(agent, config):
+def chat(agent, config, user_input):
     stream = agent.stream_events(
         {"messages": [("user", user_input)]},
         version="v3",
@@ -92,4 +92,4 @@ if __name__ == "__main__":
         if user_input.lower() in ["quit", "exit"]:
             break
 
-        chat(agent, config)
+        chat(agent, config, user_input)
