@@ -14,41 +14,44 @@ import os
 
 load_dotenv()
 
-os.environ['AWS_BEARER_TOKEN_BEDROCK'] = os.getenv('AWS_BEDROCK_API_KEY')
-
-MODEL_ID = os.getenv('MODEL_ID')
+def load_environment():
+    os.environ['AWS_BEARER_TOKEN_BEDROCK'] = os.getenv('AWS_BEDROCK_API_KEY')
+    MODEL_ID = os.getenv('MODEL_ID')
+    return MODEL_ID
 
 # 1. Initialize the Bedrock model
 # llm = ChatBedrock(
 #     model_id=MODEL_ID,
 #     region_name="us-east-1"
 # )
-llm = ChatBedrockConverse(
-    model_id=MODEL_ID,
-    region_name="us-east-1",
-    streaming=True
-)
+def create_model(model_id):
+    llm = ChatBedrockConverse(
+        model_id=model_id,
+        region_name="us-east-1",
+        streaming=True
+    )
+    return llm
 
 # 2. Initialize a web search tool
-search_tool = TavilySearch(max_results=3)
-tools = [search_tool]
+def create_tools():
+    search_tool = TavilySearch(max_results=3)
+    tools = [search_tool]
+    return tools
 
 # 3. Create the agent with LangGraph
-agent = create_agent(
-    llm, 
-    tools,
-    checkpointer=MemorySaver() # Enable automatic memory persitence.
-)
+def create_langgraph_agent(llm, tools):
+    agent = create_agent(
+        llm, 
+        tools,
+        checkpointer=MemorySaver() # Enable automatic memory persitence.
+    )
+    return agent
 
-config = {"configurable": {"thread_id": "conversation-123"}}
+def create_config():
+    config = {"configurable": {"thread_id": "conversation-123"}}
+    return config
 
-# 4. Invoke the agent stream until user types "quit" or "exit".
-while True:
-    cprint("USER: ", "blue", attrs=["bold"], end="")
-    user_input = input()
-    if user_input.lower() in ["quit", "exit"]:
-        break
-
+def chat(agent, config):
     stream = agent.stream_events(
         {"messages": [("user", user_input)]},
         version="v3",
@@ -69,3 +72,24 @@ while True:
 
     final_state = stream.output
     print()
+
+
+# 4. Invoke the agent stream until user types "quit" or "exit".
+if __name__ == "__main__":
+    MODEL_ID = load_environment()
+    llm = create_model(MODEL_ID)
+    tools = create_tools()
+    config = create_config()
+    agent = create_langgraph_agent(llm, tools)
+
+    cprint("Welcome to the multi-turn web search with LangChain and Bedrock models!", "blue", attrs=["bold"])
+    cprint("Type 'quit' or 'exit' to end the conversation.", "blue", attrs=["bold"])
+    print()
+
+    while True:
+        cprint("USER: ", "blue", attrs=["bold"], end="")
+        user_input = input()
+        if user_input.lower() in ["quit", "exit"]:
+            break
+
+        chat(agent, config)
