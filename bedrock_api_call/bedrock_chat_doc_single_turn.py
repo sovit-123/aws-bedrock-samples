@@ -30,7 +30,7 @@ client = boto3.client(
 )
 
 # Read PDF document and convert to bytes.
-document_path = '../input/nn_wiki.pdf'
+document_path = '../input/pdfs/nn_wiki.pdf'
 with open(document_path, 'rb') as document_file:
     document_bytes = document_file.read()
 

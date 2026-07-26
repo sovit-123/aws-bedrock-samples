@@ -30,7 +30,7 @@ client = boto3.client(
 )
 
 # Read image and convert to bytes.
-image_path = '../input/image_1.jpg'
+image_path = '../input/images/image_1.jpg'
 with open(image_path, 'rb') as image_file:
     image_bytes = image_file.read()
 

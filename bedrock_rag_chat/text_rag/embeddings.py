@@ -110,7 +110,7 @@ def __main__():
     """
     # Example usage
     folder_path = "None"
-    file_path_pdf = "../../input/nn_wiki.pdf"
+    file_path_pdf = "../../input/pdfs/nn_wiki.pdf"
     file_path_text = "None"
     
     # Read documents from folder
