@@ -30,7 +30,7 @@ client = boto3.client(
 )
 
 # Read video file and convert to bytes.
-video_path = '../input/video_1.mp4'
+video_path = '../input/videos/video_1.mp4'
 with open(video_path, 'rb') as video_file:
     video_bytes = video_file.read()
 
