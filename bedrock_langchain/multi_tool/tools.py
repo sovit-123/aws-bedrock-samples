@@ -1,10 +1,14 @@
 from langchain_tavily import TavilySearch
-from langchain_community.document_loaders import PyPDFLoader, TextLoader, DirectoryLoader
+from langchain_community.document_loaders import (
+    PyPDFLoader, 
+    TextLoader, 
+    DirectoryLoader,
+    WebBaseLoader
+)
 from langchain_chroma import Chroma
 from langchain_text_splitters import RecursiveCharacterTextSplitter  
 from langchain_aws import BedrockEmbeddings
 from dotenv import load_dotenv
-from langchain.tools import tool
 
 import os
 
@@ -106,6 +110,23 @@ class RAGTool:
                 print('#' * 100)
         
         return retrieved_text
+
+class URLReaderTool:
+    """
+    A wrapper class for reading and extracting text from a web page.
+    """
+
+    def read_url(self, url):
+        """
+        Reads a web page and returns its text content.
+        """
+        loader = WebBaseLoader(url)
+        docs = loader.load()
+
+        # Combine all page contents into a single string
+        text = "\n".join(doc.page_content for doc in docs)
+
+        return text
 
 if __name__ == "__main__":
     tavily_tool = TavilySearchTool(max_results=3)

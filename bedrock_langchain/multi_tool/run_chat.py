@@ -9,7 +9,7 @@ from termcolor import cprint
 from langgraph.checkpoint.memory import MemorySaver
 from langchain_core.tools import StructuredTool
 
-from tools import TavilySearch, RAGTool
+from tools import TavilySearch, RAGTool, URLReaderTool
 
 import os
 import boto3
@@ -41,7 +41,13 @@ def create_tools(search_tool, rag_tool):
         func=rag_tool.retrieve
     )
 
-    tools = [search_tool, retrieve_tool]
+    url_reader_tool = StructuredTool.from_function(
+        name="URLReaderTool",
+        description="A tool that reads content from a given URL.",
+        func=URLReaderTool().read_url
+    )
+
+    tools = [search_tool, retrieve_tool, url_reader_tool]
     return tools
 
 def create_langgraph_agent(llm, tools):
